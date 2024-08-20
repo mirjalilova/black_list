@@ -27,6 +27,7 @@ jobs:
           ls
           cd ~/project/medmon/med-track
           sudo docker compose down
-          sudo docker compose up -d
-          sudo docker compose up -d
+          git pull origin main
+          sudo docker compose up --build
+          sudo docker compose up
           

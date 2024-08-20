@@ -1,46 +1,15 @@
 version: '3.9'
 
-services:
-  migrate:
-    image: migrate/migrate
-    networks:
-      - ntwrk
-    volumes:
-      - ./migrations:/migrations
-    command: ["-path", "/migrations", "-database", "postgres://postgres:feruza1727@postgres:5432/postgres?sslmode=disable", "up"]
-    depends_on:
-      - postgres
-
-  postgres:
-    container_name: postgres
-    image: postgres:latest
-    environment:
-      PGUSER: postgres
-      POSTGRES_PASSWORD: feruza1727
-      PGDATA: /data/postgres
-      POSTGRES_DB: black_list 
-    volumes:
-      - db:/data/postgres
-    ports:
-      - "5431:5432"
-    networks:
-      - ntwrk
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -d postgres"]
-      interval: 30s
-      timeout: 10s
-      retries: 5 
-  
+services:  
   black_list:
     container_name: black_list
     build: .
     ports:
-      - "6060:6060"
+      - "6666:6666"
     networks:
       - ntwrk
     environment:
-      - DB_HOST=postgres
+      - DB_HOST=postgresdb
       - DB_PORT=5432
       - DB_USER=postgres
       - DB_PASSWORD=feruza1727

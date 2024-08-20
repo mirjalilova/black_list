@@ -21,6 +21,6 @@ COPY .env .
 
 RUN chmod +x blacklist
 
-EXPOSE 6060
+EXPOSE 6666
 
 CMD ["./blacklist"]
