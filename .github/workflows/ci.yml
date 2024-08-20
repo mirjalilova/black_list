@@ -25,7 +25,7 @@ jobs:
         script: |
           pwd
           ls
-          cd ~/project/medmon/med-track
+          cd ~/project/blacklist/black_list
           sudo docker compose down
           git pull origin main
           sudo docker compose up --build
