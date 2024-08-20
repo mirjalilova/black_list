@@ -18,7 +18,7 @@ type Storage struct {
 
 func ConnectDB() (*Storage, error) {
 	cfg := config.Load()
-	dbConn := fmt.Sprintf("postgres://%s:%s@%s:%d/%s ",
+	dbConn := fmt.Sprintf("postgres://%s:%s@%s:%d/%s sslmode=disable",
 		cfg.DB_USER,
 		cfg.DB_PASSWORD,
 		cfg.DB_HOST,
