@@ -18,12 +18,13 @@ type Storage struct {
 
 func ConnectDB() (*Storage, error) {
 	cfg := config.Load()
-	dbConn := fmt.Sprintf("postgres://%s:%s@%s:%d/%s sslmode=disable",
-		cfg.DB_USER,
-		cfg.DB_PASSWORD,
+	dbConn := fmt.Sprintf("host=%s user=%s dbname=%s password=%s port=%d sslmode=disable",
 		cfg.DB_HOST,
+		cfg.DB_USER,
+		cfg.DB_NAME,
+		cfg.DB_PASSWORD,
 		cfg.DB_PORT,
-		cfg.DB_NAME)
+	)
 	db, err := sql.Open("postgres", dbConn)
 	if err != nil {
 		return nil, err
@@ -32,7 +33,7 @@ func ConnectDB() (*Storage, error) {
 	if err != nil {
 		return nil, err
 	}
-	
+
 	return &Storage{
 		db:         db,
 		AdminS:     NewAdminRepo(db),
