@@ -38,7 +38,7 @@ func (s *HRRepo) Create(req *pb.EmployeeCreate) (*pb.Void, error) {
 	query = `UPDATE 
 				users
 			SET
-				role = 'employee'
+				role = 'employee',
 				updated_at = now()
 			WHERE 
 				id = $1 AND deleted_at = 0`
