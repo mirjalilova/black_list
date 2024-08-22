@@ -161,13 +161,13 @@ func (s *AdminRepo) GetAllUsers(req *pb.ListUserReq) (*pb.ListUserRes, error) {
 	var args []interface{}
 
 	if req.Username != "" && req.Username != "string" {
-		args = append(args, req.Username)
-		query += fmt.Sprintf(" AND ILIKE username %$%d%", len(args))
+		args = append(args, "%"+req.Username+"%")
+		query += fmt.Sprintf(" AND username ILIKE $%d", len(args))
 	}
 
 	if req.FullName != "" && req.FullName != "string" {
-		args = append(args, req.FullName)
-		query += fmt.Sprintf(" AND ILIKE full_name %$%d%", len(args))
+		args = append(args, "%"+req.FullName+"%")
+		query += fmt.Sprintf(" AND full_name ILIKE $%d", len(args))
 	}
 
 	query += fmt.Sprintf(" LIMIT $%d OFFSET $%d", len(args)+1, len(args)+2)
