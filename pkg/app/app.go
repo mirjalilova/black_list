@@ -11,7 +11,7 @@ import (
 )
 
 func Run(cfg *config.Config) {
-	conn, err := st.ConnectDB()
+	conn, err := st.ConnectPostgres()
 	if err != nil {
 		slog.Error("Failed to connect to the database: %v", err)
 		return

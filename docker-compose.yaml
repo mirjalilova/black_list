@@ -12,7 +12,7 @@ services:
       - DB_HOST=postgresdb
       - DB_PORT=5432
       - DB_USER=postgres
-      - DB_PASSWORD=feruza1727
+      - DB_PASSWORD=1234
       - DB_NAME=black_list
 
 volumes:

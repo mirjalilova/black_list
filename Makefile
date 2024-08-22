@@ -1,6 +1,6 @@
 CURRENT_DIR=$(shell pwd)
 
-DBURL='postgres://postgres:feruza1727@localhost:5432/blacklist?sslmode=disable'
+DBURL='postgres://postgres:1234@localhost:5432/blacklist?sslmode=disable'
 
 proto-gen:
 	./internal/scripts/gen-proto.sh ${CURRENT_DIR}

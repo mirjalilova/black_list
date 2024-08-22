@@ -12,7 +12,7 @@ type Service struct {
 	BlackListS service.BlackListI
 }
 
-func ConnectDB() (*st.Storage, error) {
+func ConnectPostgres() (*st.Storage, error) {
 	storage, err := st.ConnectDB()
 	if err != nil {
 		slog.Error("can't connect to postgres: %v", err)
