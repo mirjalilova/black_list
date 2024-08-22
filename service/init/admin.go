@@ -41,3 +41,7 @@ func (s *AdminService) GetAllUsers(c context.Context, req *pb.ListUserReq) (*pb.
     slog.Info("Got all users: %+v", res)
     return res, nil
 }
+
+func (s *AdminService) ChangeRole(c context.Context, req *pb.ChangeRoleReq) (*pb.Void, error) {
+    return s.storage.Admin().ChangeRole(req)
+}

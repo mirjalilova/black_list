@@ -197,3 +197,21 @@ func (s *AdminRepo) GetAllUsers(req *pb.ListUserReq) (*pb.ListUserRes, error) {
 
 	return res, nil
 }
+
+func (s *AdminRepo) ChangeRole(req *pb.ChangeRoleReq) (*pb.Void, error) {
+	res := &pb.Void{}
+
+	query := `UPDATE 
+				users
+			SET
+			    role = $1
+			WHERE
+				id = $2 AND deleted_at = 0`
+
+	_, err := s.db.Exec(query, req.Role, req.UserId)
+	if err!= nil {
+        return res, err
+    }
+
+	return res, nil
+}

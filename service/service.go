@@ -17,6 +17,7 @@ type AdminI interface {
 	ListHR(ctx context.Context, request *pb.Filter) (*pb.GetAllHRRes, error)
 	Delete(ctx context.Context, request *pb.GetById) (*pb.Void, error)
 	GetAllUsers(ctx context.Context, request *pb.ListUserReq) (*pb.ListUserRes, error)
+	ChangeRole(ctx context.Context, request *pb.ChangeRoleReq) (*pb.Void, error)
 }
 
 type HRI interface {
