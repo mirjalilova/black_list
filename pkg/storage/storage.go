@@ -14,6 +14,7 @@ type AdminI interface {
 	Approve(id *pb.CreateHR) (*pb.Void, error)
 	ListHR(filter *pb.Filter) (*pb.GetAllHRRes, error)
 	Delete(id *pb.GetById) (*pb.Void, error)
+	GetAllUsers(req *pb.ListUserReq) (*pb.ListUserRes, error)
 }
 
 type HRI interface {

@@ -5,6 +5,7 @@ import (
 
 	pb "github.com/mirjalilova/black_list/internal/genproto/black_list"
 	"github.com/mirjalilova/black_list/pkg/storage"
+	"golang.org/x/exp/slog"
 )
 
 type AdminService struct {
@@ -28,4 +29,15 @@ func (s *AdminService) ListHR(c context.Context, filter *pb.Filter) (*pb.GetAllH
 
 func (s *AdminService) Delete(c context.Context, req *pb.GetById) (*pb.Void, error) {
     return s.storage.Admin().Delete(req)
+}
+
+func (s *AdminService) GetAllUsers(c context.Context, req *pb.ListUserReq) (*pb.ListUserRes, error) {
+    res, err := s.storage.Admin().GetAllUsers(req)
+    if err!= nil {
+        slog.Error("Error getting all users: %v", err)
+        return nil, err
+    }
+
+    slog.Info("Got all users: %+v", res)
+    return res, nil
 }

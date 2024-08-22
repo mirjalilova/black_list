@@ -26,11 +26,21 @@ func (s *HRRepo) Create(req *pb.EmployeeCreate) (*pb.Void, error) {
 		return res, err
 	}
 
-	query := `INSERT INTO employees 
+	query := `SELECT id FROM hr WHERE user_id = $1`
+
+	var hr_id string
+	err = tr.QueryRow(query, req.HrId).Scan(&hr_id)
+	if err == sql.ErrNoRows {
+		return nil, fmt.Errorf("HR not found for user_id: %s", req.HrId)
+	} else if err != nil {
+	return nil, err
+    }
+
+	query = `INSERT INTO employees 
 				(user_id, position, hr_id) 
 			VALUES ($1, $2, $3)`
 
-	_, err = tr.Exec(query, req.UserId, req.Position, req.HrId)
+	_, err = tr.Exec(query, req.UserId, req.Position, hr_id)
 	if err != nil {
 		return res, err
 	}

@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"database/sql"
+	"fmt"
 
 	pb "github.com/mirjalilova/black_list/internal/genproto/black_list"
 )
@@ -22,9 +23,19 @@ func (s *BalckListRepo) Add(req *pb.BlackListCreate) (*pb.Void, error) {
 	tr, err := s.db.Begin()
 	if err != nil {
 		return res, err
-    }
+	}
 
-	query := `INSERT INTO black_list 
+	query := `SELECT id FROM hr WHERE user_id = $1`
+
+	var hr_id string
+	err = tr.QueryRow(query, req.AddedBy).Scan(&hr_id)
+	if err == sql.ErrNoRows {
+		return nil, fmt.Errorf("HR not found for user_id: %s", req.AddedBy)
+	} else if err != nil {
+		return nil, err
+	}
+
+	query = `INSERT INTO black_list 
 				(employee_id, reason) 
 			VALUES 
 				($1, $2)`
@@ -32,19 +43,19 @@ func (s *BalckListRepo) Add(req *pb.BlackListCreate) (*pb.Void, error) {
 	_, err = tr.Exec(query, req.EmployeeId, req.Reason)
 	if err != nil {
 		tr.Rollback()
-        return nil, err
-    }
+		return nil, err
+	}
 
 	query = `INSERT INTO audit_logs 
 				(added_by, employee_id, action)
 			VALUES
 				($1, $2, 'added')`
-	
-	_, err = tr.Exec(query, req.AddedBy, req.EmployeeId)
-	if err!= nil {
-        tr.Rollback()
-        return nil, err
-    }
+
+	_, err = tr.Exec(query, hr_id, req.EmployeeId)
+	if err != nil {
+		tr.Rollback()
+		return nil, err
+	}
 
 	tr.Commit()
 
@@ -67,11 +78,11 @@ func (s *BalckListRepo) GetAll(req *pb.Filter) (*pb.GetAllBlackListRes, error) {
 			JOIN 
 				black_list b on e.id = b.employee_id
 				LIMIT $1 OFFSET $2`
-	
-    rows, err := s.db.Query(query, req.Limit, req.Offset)
-	if err!= nil {
-        return nil, err
-    }
+
+	rows, err := s.db.Query(query, req.Limit, req.Offset)
+	if err != nil {
+		return nil, err
+	}
 	defer rows.Close()
 
 	for rows.Next() {
@@ -79,14 +90,14 @@ func (s *BalckListRepo) GetAll(req *pb.Filter) (*pb.GetAllBlackListRes, error) {
 
 		err = rows.Scan(
 			&bk.FullName,
-            &bk.DateOfBirth,
-            &bk.Position,
-            &bk.Reason,
-            &bk.BlacklistedAt,
-        )
-		if err!= nil {
-            return nil, err
-        }
+			&bk.DateOfBirth,
+			&bk.Position,
+			&bk.Reason,
+			&bk.BlacklistedAt,
+		)
+		if err != nil {
+			return nil, err
+		}
 
 		res.BlackLists = append(res.BlackLists, bk)
 	}
@@ -102,28 +113,39 @@ func (s *BalckListRepo) Remove(req *pb.RemoveReq) (*pb.Void, error) {
 	tr, err := s.db.Begin()
 	if err != nil {
 		return res, err
-    }
+	}
 
-	query := `DELETE FROM black_list 
+
+	query := `SELECT id FROM hr WHERE user_id = $1`
+
+	var hr_id string
+	err = tr.QueryRow(query, req.AddedBy).Scan(&hr_id)
+	if err == sql.ErrNoRows {
+		return nil, fmt.Errorf("HR not found for user_id: %s", req.AddedBy)
+	} else if err != nil {
+		return nil, err
+	}
+
+	query = `DELETE FROM black_list 
 				WHERE 
 			employee_id = $1`
 
 	_, err = tr.Exec(query, req.EmployeeId)
 	if err != nil {
 		tr.Rollback()
-        return nil, err
-    }
+		return nil, err
+	}
 
-    query = `INSERT INTO audit_logs
+	query = `INSERT INTO audit_logs
 				(added_by, employee_id, action)
 			VALUES
 				($1, $2, 'removed')`
-	
-	_, err = tr.Exec(query, req.AddedBy, req.EmployeeId)
-	if err!= nil {
-        tr.Rollback()
-        return nil, err
-    }
+
+	_, err = tr.Exec(query, hr_id, req.EmployeeId)
+	if err != nil {
+		tr.Rollback()
+		return nil, err
+	}
 
 	tr.Commit()
 

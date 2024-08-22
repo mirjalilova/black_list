@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"database/sql"
+	"fmt"
 
 	pb "github.com/mirjalilova/black_list/internal/genproto/black_list"
 )
@@ -137,6 +138,61 @@ func (s *AdminRepo) Delete(req *pb.GetById) (*pb.Void, error) {
 	if err != nil {
 		tr.Rollback()
 		return nil, err
+	}
+
+	return res, nil
+}
+
+func (s *AdminRepo) GetAllUsers(req *pb.ListUserReq) (*pb.ListUserRes, error) {
+	res := &pb.ListUserRes{}
+
+	query := `SELECT 
+				id, 
+				username, 
+				full_name,
+				email, 
+				date_of_birth,
+				role 
+			FROM 
+				users 
+			WHERE 
+				deleted_at=0`
+
+	var args []interface{}
+
+	if req.Username != "" && req.Username != "string" {
+		args = append(args, req.Username)
+		query += fmt.Sprintf(" AND ILIKE username %$%d%", len(args))
+	}
+
+	if req.FullName != "" && req.FullName != "string" {
+		args = append(args, req.FullName)
+		query += fmt.Sprintf(" AND ILIKE full_name %$%d%", len(args))
+	}
+
+	query += fmt.Sprintf(" LIMIT $%d OFFSET $%d", len(args)+1, len(args)+2)
+	args = append(args, req.Filter.Limit, req.Filter.Offset)
+
+	rows, err := s.db.Query(query, args...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var user pb.UserRes
+		err := rows.Scan(
+			&user.Id,
+			&user.Username,
+			&user.FullName,
+			&user.Email,
+			&user.DateOfBirth,
+			&user.Role,
+		)
+		if err != nil {
+			return nil, err
+		}
+		res.Users = append(res.Users, &user)
 	}
 
 	return res, nil

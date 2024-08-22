@@ -24,7 +24,6 @@ const (
 	AuthService_ForgotPassword_FullMethodName   = "/auth.AuthService/ForgotPassword"
 	AuthService_ResetPassword_FullMethodName    = "/auth.AuthService/ResetPassword"
 	AuthService_SaveRefreshToken_FullMethodName = "/auth.AuthService/SaveRefreshToken"
-	AuthService_RefreshToken_FullMethodName     = "/auth.AuthService/RefreshToken"
 )
 
 // AuthServiceClient is the client API for AuthService service.
@@ -36,7 +35,6 @@ type AuthServiceClient interface {
 	ForgotPassword(ctx context.Context, in *GetByEmail, opts ...grpc.CallOption) (*Void, error)
 	ResetPassword(ctx context.Context, in *ResetPassReq, opts ...grpc.CallOption) (*Void, error)
 	SaveRefreshToken(ctx context.Context, in *RefToken, opts ...grpc.CallOption) (*Void, error)
-	RefreshToken(ctx context.Context, in *GetByEmail, opts ...grpc.CallOption) (*LoginRes, error)
 }
 
 type authServiceClient struct {
@@ -97,16 +95,6 @@ func (c *authServiceClient) SaveRefreshToken(ctx context.Context, in *RefToken, 
 	return out, nil
 }
 
-func (c *authServiceClient) RefreshToken(ctx context.Context, in *GetByEmail, opts ...grpc.CallOption) (*LoginRes, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(LoginRes)
-	err := c.cc.Invoke(ctx, AuthService_RefreshToken_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 // AuthServiceServer is the server API for AuthService service.
 // All implementations must embed UnimplementedAuthServiceServer
 // for forward compatibility
@@ -116,7 +104,6 @@ type AuthServiceServer interface {
 	ForgotPassword(context.Context, *GetByEmail) (*Void, error)
 	ResetPassword(context.Context, *ResetPassReq) (*Void, error)
 	SaveRefreshToken(context.Context, *RefToken) (*Void, error)
-	RefreshToken(context.Context, *GetByEmail) (*LoginRes, error)
 	mustEmbedUnimplementedAuthServiceServer()
 }
 
@@ -138,9 +125,6 @@ func (UnimplementedAuthServiceServer) ResetPassword(context.Context, *ResetPassR
 }
 func (UnimplementedAuthServiceServer) SaveRefreshToken(context.Context, *RefToken) (*Void, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SaveRefreshToken not implemented")
-}
-func (UnimplementedAuthServiceServer) RefreshToken(context.Context, *GetByEmail) (*LoginRes, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method RefreshToken not implemented")
 }
 func (UnimplementedAuthServiceServer) mustEmbedUnimplementedAuthServiceServer() {}
 
@@ -245,24 +229,6 @@ func _AuthService_SaveRefreshToken_Handler(srv interface{}, ctx context.Context,
 	return interceptor(ctx, in, info, handler)
 }
 
-func _AuthService_RefreshToken_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetByEmail)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(AuthServiceServer).RefreshToken(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: AuthService_RefreshToken_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AuthServiceServer).RefreshToken(ctx, req.(*GetByEmail))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 // AuthService_ServiceDesc is the grpc.ServiceDesc for AuthService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -289,10 +255,6 @@ var AuthService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "SaveRefreshToken",
 			Handler:    _AuthService_SaveRefreshToken_Handler,
-		},
-		{
-			MethodName: "RefreshToken",
-			Handler:    _AuthService_RefreshToken_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
