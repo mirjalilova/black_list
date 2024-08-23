@@ -26,11 +26,14 @@ func (s *HRRepo) Create(req *pb.EmployeeCreate) (*pb.Void, error) {
 		return res, err
 	}
 
+	fmt.Println("ddddddddddddddddd")
+
 	query := `SELECT id FROM hr WHERE user_id = $1`
 
 	var hr_id string
 	err = tr.QueryRow(query, req.HrId).Scan(&hr_id)
 	if err == sql.ErrNoRows {
+		tr.Rollback()
 		return nil, fmt.Errorf("HR not found for user_id: %s", req.HrId)
 	} else if err != nil {
 	return nil, err
@@ -42,9 +45,11 @@ func (s *HRRepo) Create(req *pb.EmployeeCreate) (*pb.Void, error) {
 
 	_, err = tr.Exec(query, req.UserId, req.Position, hr_id)
 	if err != nil {
+		tr.Rollback()
 		return res, err
 	}
 
+	fmt.Println("ddddddddddddddddd")
 	query = `UPDATE 
 				users
 			SET
@@ -55,9 +60,13 @@ func (s *HRRepo) Create(req *pb.EmployeeCreate) (*pb.Void, error) {
 
 	_, err = tr.Exec(query, req.UserId)
 	if err != nil {
+		tr.Rollback()
 		return res, err
 	}
 
+	tr.Commit()
+
+	fmt.Println("ddddddddddddddddd", query, req.UserId)
 	return res, nil
 }
 
