@@ -151,3 +151,120 @@ func (s *BalckListRepo) Remove(req *pb.RemoveReq) (*pb.Void, error) {
 
 	return res, nil
 }
+
+func (s *BalckListRepo) MonitoringDailyReport(req *pb.Void) (*pb.Reports, error) {
+	res := &pb.Reports{}
+
+    query := `SELECT 
+				u.full_name,
+				b.timestamp
+            FROM
+                audit_logs b 
+            JOIN
+                employees e on e.id = b.employee_id
+			JOIN 
+				users u on u.id = e.user_id
+			WHERE 
+				b.action = 'added' AND b.timestamp >= NOW() - INTERVAL '1 day'`
+
+    rows, err := s.db.Query(query)
+	if err!= nil {
+        return nil, err
+    }
+	defer rows.Close()
+
+	for rows.Next() {
+		report := &pb.Report{}
+		err = rows.Scan(
+            &report.FullName,
+            &report.BlacklistedAt,
+        )
+		if err!= nil {
+            return nil, err
+        }
+
+		res.Reports = append(res.Reports, report)
+	}
+
+	res.Count = int32(len(res.Reports))			
+
+    return res, nil
+}
+
+func (s *BalckListRepo) MonitoringWeeklyReport(req *pb.Void) (*pb.Reports, error) {
+	res := &pb.Reports{}
+
+    query := `SELECT 
+				u.full_name,
+				b.timestamp
+            FROM
+                audit_logs b 
+            JOIN
+                employees e on e.id = b.employee_id
+			JOIN 
+				users u on u.id = e.user_id
+			WHERE 
+				b.action = 'added' AND b.timestamp >= NOW() - INTERVAL '1 week'`
+
+    rows, err := s.db.Query(query)
+	if err!= nil {
+        return nil, err
+    }
+	defer rows.Close()
+
+	for rows.Next() {
+		report := &pb.Report{}
+		err = rows.Scan(
+            &report.FullName,
+            &report.BlacklistedAt,
+        )
+		if err!= nil {
+            return nil, err
+        }
+
+		res.Reports = append(res.Reports, report)
+	}
+	
+	res.Count = int32(len(res.Reports))			
+
+    return res, nil
+}
+
+func (s *BalckListRepo) MonitoringMonthlyReport(req *pb.Void) (*pb.Reports, error) {
+	res := &pb.Reports{}
+
+    query := `SELECT 
+				u.full_name,
+				b.timestamp
+            FROM
+                audit_logs b 
+            JOIN
+                employees e on e.id = b.employee_id
+			JOIN 
+				users u on u.id = e.user_id
+			WHERE 
+				b.action = 'added' AND b.timestamp >= NOW() - INTERVAL '1 month'`
+
+    rows, err := s.db.Query(query)
+	if err!= nil {
+        return nil, err
+    }
+	defer rows.Close()
+
+	for rows.Next() {
+		report := &pb.Report{}
+		err = rows.Scan(
+            &report.FullName,
+            &report.BlacklistedAt,
+        )
+		if err!= nil {
+            return nil, err
+        }
+
+		res.Reports = append(res.Reports, report)
+	}
+	
+	res.Count = int32(len(res.Reports))			
+
+    return res, nil
+}

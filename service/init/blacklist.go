@@ -5,6 +5,7 @@ import (
 
 	pb "github.com/mirjalilova/black_list/internal/genproto/black_list"
 	"github.com/mirjalilova/black_list/pkg/storage"
+	"golang.org/x/exp/slog"
 )
 
 type BlackListService struct {
@@ -19,13 +20,34 @@ func NewBlackListService(storage storage.StorageI) *BlackListService {
 }
 
 func (s *BlackListService) Add(c context.Context, req *pb.BlackListCreate) (*pb.Void, error) {
-	return s.storage.BlackList().Add(req)
+	_, err := s.storage.BlackList().Add(req)
+	if err!= nil {
+		slog.Error("Error adding black list: %v", err)
+        return nil, err
+    }
+
+	slog.Info("Black list added")
+	return &pb.Void{}, nil
 }
 
 func (s *BlackListService) GetAll(c context.Context, req *pb.Filter) (*pb.GetAllBlackListRes, error) {
-	return s.storage.BlackList().GetAll(req)
+	res, err := s.storage.BlackList().GetAll(req)
+	if err!= nil {
+        slog.Error("Error getting black list: %v", err)
+        return nil, err
+    }
+
+	slog.Info("Got black list: %+v", res)
+	return res, nil
 }
 
 func (s *BlackListService) Remove(c context.Context, req *pb.RemoveReq) (*pb.Void, error) {
-	return s.storage.BlackList().Remove(req)
+	_, err := s.storage.BlackList().Remove(req)
+	if err!= nil {
+        slog.Error("Error removing black list: %v", err)
+        return nil, err
+    }
+
+	slog.Info("Black list removed")
+	return &pb.Void{}, nil
 }
