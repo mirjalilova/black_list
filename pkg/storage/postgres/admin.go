@@ -140,6 +140,8 @@ func (s *AdminRepo) Delete(req *pb.GetById) (*pb.Void, error) {
 		return nil, err
 	}
 
+	tr.Commit()
+
 	return res, nil
 }
 
@@ -201,6 +203,11 @@ func (s *AdminRepo) GetAllUsers(req *pb.ListUserReq) (*pb.ListUserRes, error) {
 func (s *AdminRepo) ChangeRole(req *pb.ChangeRoleReq) (*pb.Void, error) {
 	res := &pb.Void{}
 
+	tr , err := s.db.Begin()
+	if err!= nil {
+		return res, err
+    }
+
 	query := `UPDATE 
 				users
 			SET
@@ -208,10 +215,21 @@ func (s *AdminRepo) ChangeRole(req *pb.ChangeRoleReq) (*pb.Void, error) {
 			WHERE
 				id = $2 AND deleted_at = 0`
 
-	_, err := s.db.Exec(query, req.Role, req.UserId)
+	_, err = tr.Exec(query, req.Role, req.UserId)
 	if err!= nil {
         return res, err
     }
+
+	if req.Role == "admin" {
+		query = `INSERT INTO hr (user_id, approved_by) VALUES ($1, $2)`
+		_, err = tr.Exec(query, req.UserId, req.UserId)
+		if err!= nil {
+			tr.Rollback()
+			return nil, err
+		}
+	}
+
+	tr.Commit()
 
 	return res, nil
 }

@@ -7,17 +7,17 @@ import (
 	pb "github.com/mirjalilova/black_list/internal/genproto/black_list"
 )
 
-type BalckListRepo struct {
+type BlackListRepo struct {
 	db *sql.DB
 }
 
-func NewBalckListRepo(db *sql.DB) *BalckListRepo {
-	return &BalckListRepo{
+func NewBlackListRepo(db *sql.DB) *BlackListRepo {
+	return &BlackListRepo{
 		db: db,
 	}
 }
 
-func (s *BalckListRepo) Add(req *pb.BlackListCreate) (*pb.Void, error) {
+func (s *BlackListRepo) Add(req *pb.BlackListCreate) (*pb.Void, error) {
 	res := &pb.Void{}
 
 	tr, err := s.db.Begin()
@@ -62,7 +62,7 @@ func (s *BalckListRepo) Add(req *pb.BlackListCreate) (*pb.Void, error) {
 	return res, nil
 }
 
-func (s *BalckListRepo) GetAll(req *pb.Filter) (*pb.GetAllBlackListRes, error) {
+func (s *BlackListRepo) GetAll(req *pb.Filter) (*pb.GetAllBlackListRes, error) {
 	res := &pb.GetAllBlackListRes{}
 
 	query := `SELECT 
@@ -70,14 +70,14 @@ func (s *BalckListRepo) GetAll(req *pb.Filter) (*pb.GetAllBlackListRes, error) {
 				u.date_of_birth,
 				e.position,
 				b.reason,
-                b.created_at
+                b.blacklisted_at
 			FROM
-				user u
+				users u
 			JOIN
 				employees e on u.id = e.user_id
 			JOIN 
 				black_list b on e.id = b.employee_id
-				LIMIT $1 OFFSET $2`
+			LIMIT $1 OFFSET $2`
 
 	rows, err := s.db.Query(query, req.Limit, req.Offset)
 	if err != nil {
@@ -107,7 +107,8 @@ func (s *BalckListRepo) GetAll(req *pb.Filter) (*pb.GetAllBlackListRes, error) {
 	return res, nil
 }
 
-func (s *BalckListRepo) Remove(req *pb.RemoveReq) (*pb.Void, error) {
+
+func (s *BlackListRepo) Remove(req *pb.RemoveReq) (*pb.Void, error) {
 	res := &pb.Void{}
 
 	tr, err := s.db.Begin()
@@ -152,7 +153,7 @@ func (s *BalckListRepo) Remove(req *pb.RemoveReq) (*pb.Void, error) {
 	return res, nil
 }
 
-func (s *BalckListRepo) MonitoringDailyReport(req *pb.Void) (*pb.Reports, error) {
+func (s *BlackListRepo) MonitoringDailyReport(req *pb.Void) (*pb.Reports, error) {
 	res := &pb.Reports{}
 
     query := `SELECT 
@@ -191,7 +192,7 @@ func (s *BalckListRepo) MonitoringDailyReport(req *pb.Void) (*pb.Reports, error)
     return res, nil
 }
 
-func (s *BalckListRepo) MonitoringWeeklyReport(req *pb.Void) (*pb.Reports, error) {
+func (s *BlackListRepo) MonitoringWeeklyReport(req *pb.Void) (*pb.Reports, error) {
 	res := &pb.Reports{}
 
     query := `SELECT 
@@ -230,7 +231,7 @@ func (s *BalckListRepo) MonitoringWeeklyReport(req *pb.Void) (*pb.Reports, error
     return res, nil
 }
 
-func (s *BalckListRepo) MonitoringMonthlyReport(req *pb.Void) (*pb.Reports, error) {
+func (s *BlackListRepo) MonitoringMonthlyReport(req *pb.Void) (*pb.Reports, error) {
 	res := &pb.Reports{}
 
     query := `SELECT 

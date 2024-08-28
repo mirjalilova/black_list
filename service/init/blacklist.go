@@ -37,7 +37,7 @@ func (s *BlackListService) GetAll(c context.Context, req *pb.Filter) (*pb.GetAll
         return nil, err
     }
 
-	slog.Info("Got black list: %+v", res)
+	slog.Info("Got black list successfully")
 	return res, nil
 }
 
@@ -50,4 +50,37 @@ func (s *BlackListService) Remove(c context.Context, req *pb.RemoveReq) (*pb.Voi
 
 	slog.Info("Black list removed")
 	return &pb.Void{}, nil
+}
+
+func (s *BlackListService) MonitoringDailyReport(c context.Context, req *pb.Void) (*pb.Reports, error) {
+	res, err := s.storage.BlackList().MonitoringDailyReport(req)
+    if err!= nil {
+        slog.Error("Error getting daily report: %v", err)
+        return nil, err
+    }
+
+    slog.Info("Got daily report successfully")
+    return res, nil
+}
+
+func (s *BlackListService) MonitoringWeeklyReport(c context.Context, req *pb.Void) (*pb.Reports, error) {
+	res, err := s.storage.BlackList().MonitoringWeeklyReport(req)
+    if err!= nil {
+        slog.Error("Error getting weekly report: %v", err)
+        return nil, err
+    }
+
+    slog.Info("Got weekly report successfully")
+    return res, nil
+}
+
+func (s *BlackListService) MonitoringMonthlyReport(c context.Context, req *pb.Void) (*pb.Reports, error) {
+	res, err := s.storage.BlackList().MonitoringMonthlyReport(req)
+    if err!= nil {
+        slog.Error("Error getting monthly report: %v", err)
+        return nil, err
+    }
+
+    slog.Info("Got monthly report successfully")
+    return res, nil
 }

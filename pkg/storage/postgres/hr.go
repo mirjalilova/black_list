@@ -26,8 +26,6 @@ func (s *HRRepo) Create(req *pb.EmployeeCreate) (*pb.Void, error) {
 		return res, err
 	}
 
-	fmt.Println("ddddddddddddddddd")
-
 	query := `SELECT id FROM hr WHERE user_id = $1`
 
 	var hr_id string
@@ -49,7 +47,6 @@ func (s *HRRepo) Create(req *pb.EmployeeCreate) (*pb.Void, error) {
 		return res, err
 	}
 
-	fmt.Println("ddddddddddddddddd")
 	query = `UPDATE 
 				users
 			SET
@@ -66,7 +63,6 @@ func (s *HRRepo) Create(req *pb.EmployeeCreate) (*pb.Void, error) {
 
 	tr.Commit()
 
-	fmt.Println("ddddddddddddddddd", query, req.UserId)
 	return res, nil
 }
 
@@ -122,12 +118,12 @@ func (s *HRRepo) GetAll(req *pb.ListEmployeeReq) (*pb.ListEmployeeRes, error) {
 	var args []interface{}
 
 	if req.Position != "" && req.Position != "string" {
-		query += " AND ILIKE e.position %$1%"
-		args = append(args, req.Position)
+		query += " AND e.position ILIKE $1"
+		args = append(args, "%"+req.Position+"%")
 	}
 
-	query += fmt.Sprintf(" LIMIT $%d OFFSET $%d", len(args)+1, len(args)+2)
 	args = append(args, req.Filter.Limit, req.Filter.Offset)
+	query += fmt.Sprintf(" LIMIT $%d OFFSET $%d", len(args)-1, len(args))
 
 	rows, err := s.db.Query(query, args...)
 	if err != nil {
@@ -156,6 +152,7 @@ func (s *HRRepo) GetAll(req *pb.ListEmployeeReq) (*pb.ListEmployeeRes, error) {
 	return res, nil
 }
 
+
 func (s *HRRepo) Update(req *pb.UpdateReq) (*pb.Void, error) {
 	res := &pb.Void{}
 
@@ -165,8 +162,8 @@ func (s *HRRepo) Update(req *pb.UpdateReq) (*pb.Void, error) {
 	var conditions []string
 
 	if req.Position != "" && req.Position != "string" {
-		arg = append(arg, req.Position)
-		conditions = append(conditions, fmt.Sprintf(" position = $%d", len(arg)))
+		arg = append(arg, "%" + req.Position + "%")
+		conditions = append(conditions, fmt.Sprintf(" position ILIKE $%d", len(arg)))
 	}
 
 	if req.HrId != "" && req.HrId != "string" {
@@ -174,8 +171,8 @@ func (s *HRRepo) Update(req *pb.UpdateReq) (*pb.Void, error) {
 		conditions = append(conditions, fmt.Sprintf(" hr_id = $%d", len(arg)))
 	}
 
-	query += strings.Join(conditions, ", ") + fmt.Sprintf(" WHERE id = $%d", len(arg))
 	arg = append(arg, req.Id)
+	query += strings.Join(conditions, ", ") + fmt.Sprintf(" WHERE id = $%d", len(arg))
 
 	_, err := s.db.Exec(query, arg...)
 	if err != nil {
@@ -205,6 +202,20 @@ func (s *HRRepo) Delete(req *pb.GetById) (*pb.Void, error) {
         return res, err
     }
 
+	var user_id string
+	query = `SELECT 
+				user_id 
+			FROM 
+				employees 
+			WHERE 
+				id = $1`
+				
+	err = tr.QueryRow(query, req.Id).Scan(&user_id)
+	if err != nil {
+		tr.Rollback()
+		return nil, err
+	}
+
     query = `UPDATE 
                 users
             SET
@@ -218,5 +229,7 @@ func (s *HRRepo) Delete(req *pb.GetById) (*pb.Void, error) {
         return res, err
     }
 
+	tr.Commit()
+	
     return res, nil
 }

@@ -38,7 +38,7 @@ func ConnectDB() (*Storage, error) {
 		db:         db,
 		AdminS:     NewAdminRepo(db),
 		HRS:        NewHRRepo(db),
-		BlackListS: NewBalckListRepo(db),
+		BlackListS: NewBlackListRepo(db),
 	}, nil
 }
 func (s *Storage) Admin() storage.AdminI {
@@ -57,7 +57,7 @@ func (s *Storage) HR() storage.HRI {
 
 func (s *Storage) BlackList() storage.BlackListI {
 	if s.BlackListS == nil {
-		s.BlackListS = NewBalckListRepo(s.db)
+		s.BlackListS = NewBlackListRepo(s.db)
 	}
 	return s.BlackListS
 }
