@@ -204,7 +204,7 @@ func (s *AdminRepo) GetAllUsers(req *pb.ListUserReq) (*pb.ListUserRes, error) {
 		res.Users = append(res.Users, &user)
 	}
 
-	query = `SELECT COUNT(*) FROM users WHERE deleted_at=0`
+	query = `SELECT COUNT(*) FROM users WHERE deleted_at=0 AND role = 'user'`
 	var count int64
 	err = s.db.QueryRow(query).Scan(&count)
 	if err!= nil {
