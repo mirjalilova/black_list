@@ -197,6 +197,8 @@ func (s *AdminRepo) GetAllUsers(req *pb.ListUserReq) (*pb.ListUserRes, error) {
 		res.Users = append(res.Users, &user)
 	}
 
+	res.Count = int32(len(res.Users))
+
 	return res, nil
 }
 
