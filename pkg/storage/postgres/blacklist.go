@@ -161,7 +161,7 @@ func (s *BlackListRepo) Remove(req *pb.RemoveReq) (*pb.Void, error) {
 	return res, nil
 }
 
-func (s *BlackListRepo) MonitoringDailyReport(req *pb.Void) (*pb.Reports, error) {
+func (s *BlackListRepo) MonitoringDailyReport(req *pb.Filter) (*pb.Reports, error) {
 	res := &pb.Reports{}
 
     query := `SELECT 
@@ -174,9 +174,11 @@ func (s *BlackListRepo) MonitoringDailyReport(req *pb.Void) (*pb.Reports, error)
 			JOIN 
 				users u on u.id = e.user_id
 			WHERE 
-				b.action = 'added' AND b.timestamp >= NOW() - INTERVAL '1 day'`
+				b.action = 'added' AND b.timestamp >= NOW() - INTERVAL '1 day' LIMIT $1 OFFSET $2`
 
-    rows, err := s.db.Query(query)
+	req.Offset = (req.Offset - 1) * req.Limit
+
+	rows, err := s.db.Query(query, req.Limit, req.Offset)
 	if err!= nil {
         return nil, err
     }
@@ -207,7 +209,7 @@ func (s *BlackListRepo) MonitoringDailyReport(req *pb.Void) (*pb.Reports, error)
     return res, nil
 }
 
-func (s *BlackListRepo) MonitoringWeeklyReport(req *pb.Void) (*pb.Reports, error) {
+func (s *BlackListRepo) MonitoringWeeklyReport(req *pb.Filter) (*pb.Reports, error) {
 	res := &pb.Reports{}
 
     query := `SELECT 
@@ -220,9 +222,11 @@ func (s *BlackListRepo) MonitoringWeeklyReport(req *pb.Void) (*pb.Reports, error
 			JOIN 
 				users u on u.id = e.user_id
 			WHERE 
-				b.action = 'added' AND b.timestamp >= NOW() - INTERVAL '1 week'`
+				b.action = 'added' AND b.timestamp >= NOW() - INTERVAL '1 week' LIMIT $1 OFFSET $2`
 
-    rows, err := s.db.Query(query)
+	req.Offset = (req.Offset - 1) * req.Limit
+
+	rows, err := s.db.Query(query, req.Limit, req.Offset)
 	if err!= nil {
         return nil, err
     }
@@ -253,7 +257,7 @@ func (s *BlackListRepo) MonitoringWeeklyReport(req *pb.Void) (*pb.Reports, error
     return res, nil
 }
 
-func (s *BlackListRepo) MonitoringMonthlyReport(req *pb.Void) (*pb.Reports, error) {
+func (s *BlackListRepo) MonitoringMonthlyReport(req *pb.Filter) (*pb.Reports, error) {
 	res := &pb.Reports{}
 
     query := `SELECT 
@@ -266,9 +270,11 @@ func (s *BlackListRepo) MonitoringMonthlyReport(req *pb.Void) (*pb.Reports, erro
 			JOIN 
 				users u on u.id = e.user_id
 			WHERE 
-				b.action = 'added' AND b.timestamp >= NOW() - INTERVAL '1 month'`
+				b.action = 'added' AND b.timestamp >= NOW() - INTERVAL '1 month' LIMIT $1 OFFSET $2`
 
-    rows, err := s.db.Query(query)
+	req.Offset = (req.Offset - 1) * req.Limit
+
+	rows, err := s.db.Query(query, req.Limit, req.Offset)
 	if err!= nil {
         return nil, err
     }

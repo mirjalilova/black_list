@@ -73,38 +73,3 @@ func (s *AdminService) ChangeRole(c context.Context, req *pb.ChangeRoleReq) (*pb
     slog.Info("Role changed")
     return &pb.Void{}, nil
 }
-
-func (s *AdminService) MonitoringDailyReport(c context.Context, req *pb.Void) (*pb.Reports, error) {
-	_, err := s.storage.BlackList().MonitoringDailyReport(req)
-	if err!= nil {
-        slog.Error("Error getting daily report: %v", err)
-        return nil, err
-    }
-
-	slog.Info("Got daily report")
-	return &pb.Reports{}, nil
-}
-
-
-func (s *AdminService) MonitoringWeeklyReport(c context.Context, req *pb.Void) (*pb.Reports, error) {
-    _, err := s.storage.BlackList().MonitoringWeeklyReport(req)
-	if err!= nil {
-        slog.Error("Error getting weekly report: %v", err)
-        return nil, err
-    }
-
-	slog.Info("Got weekly report")
-	return &pb.Reports{}, nil
-}
-
-
-func (s *AdminService) MonitoringMonthlyReport(c context.Context, req *pb.Void) (*pb.Reports, error) {
-    _, err := s.storage.BlackList().MonitoringMonthlyReport(req)
-	if err!= nil {
-        slog.Error("Error getting monthly report: %v", err)
-        return nil, err
-    }
-
-	slog.Info("Got monthly report")
-	return &pb.Reports{}, nil
-}

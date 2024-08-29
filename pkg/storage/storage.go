@@ -30,7 +30,7 @@ type BlackListI interface {
 	Add(req *pb.BlackListCreate) (*pb.Void, error)
 	Remove(id *pb.RemoveReq) (*pb.Void, error)
 	GetAll(req *pb.Filter) (*pb.GetAllBlackListRes, error)
-	MonitoringDailyReport(req *pb.Void) (*pb.Reports, error)
-	MonitoringWeeklyReport(req *pb.Void) (*pb.Reports, error)
-	MonitoringMonthlyReport(req *pb.Void) (*pb.Reports, error)
+	MonitoringDailyReport(req *pb.Filter) (*pb.Reports, error)
+	MonitoringWeeklyReport(req *pb.Filter) (*pb.Reports, error)
+	MonitoringMonthlyReport(req *pb.Filter) (*pb.Reports, error)
 }
