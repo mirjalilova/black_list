@@ -69,6 +69,8 @@ func (s *AdminRepo) ListHR(req *pb.Filter) (*pb.GetAllHRRes, error) {
 			JOIN users u ON h.user_id = u.id
 			WHERE h.deleted_at=0 LIMIT $1 OFFSET $2`
 
+	req.Offset = (req.Offset - 1) * req.Limit
+
 	rows, err := s.db.Query(query, req.Limit, req.Offset)
 	if err != nil {
 		return nil, err
@@ -178,6 +180,8 @@ func (s *AdminRepo) GetAllUsers(req *pb.ListUserReq) (*pb.ListUserRes, error) {
 		args = append(args, "%"+req.FullName+"%")
 		query += fmt.Sprintf(" AND full_name ILIKE $%d", len(args))
 	}
+
+	req.Filter.Offset = (req.Filter.Offset - 1) * req.Filter.Limit
 
 	query += fmt.Sprintf(" LIMIT $%d OFFSET $%d", len(args)+1, len(args)+2)
 	args = append(args, req.Filter.Limit, req.Filter.Offset)

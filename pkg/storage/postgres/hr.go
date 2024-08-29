@@ -122,6 +122,8 @@ func (s *HRRepo) GetAll(req *pb.ListEmployeeReq) (*pb.ListEmployeeRes, error) {
 		args = append(args, "%"+req.Position+"%")
 	}
 
+	req.Filter.Offset = (req.Filter.Offset - 1) * req.Filter.Limit
+	
 	args = append(args, req.Filter.Limit, req.Filter.Offset)
 	query += fmt.Sprintf(" LIMIT $%d OFFSET $%d", len(args)-1, len(args))
 

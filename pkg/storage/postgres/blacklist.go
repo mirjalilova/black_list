@@ -79,6 +79,8 @@ func (s *BlackListRepo) GetAll(req *pb.Filter) (*pb.GetAllBlackListRes, error) {
 				black_list b on e.id = b.employee_id
 			LIMIT $1 OFFSET $2`
 
+	req.Offset = (req.Offset - 1) * req.Limit
+
 	rows, err := s.db.Query(query, req.Limit, req.Offset)
 	if err != nil {
 		return nil, err
@@ -113,7 +115,6 @@ func (s *BlackListRepo) GetAll(req *pb.Filter) (*pb.GetAllBlackListRes, error) {
 
 	return res, nil
 }
-
 
 func (s *BlackListRepo) Remove(req *pb.RemoveReq) (*pb.Void, error) {
 	res := &pb.Void{}
