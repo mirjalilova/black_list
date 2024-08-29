@@ -197,7 +197,7 @@ func (s *BlackListRepo) MonitoringDailyReport(req *pb.Filter) (*pb.Reports, erro
 		res.Reports = append(res.Reports, report)
 	}
 
-	query = `SELECT COUNT(*) FROM black_list WHERE timestamp >= NOW() - INTERVAL '1 day'`
+	query = `SELECT COUNT(*) FROM black_list WHERE blacklisted_at >= NOW() - INTERVAL '1 day'`
 	var count int64
 	err = s.db.QueryRow(query).Scan(&count)
 	if err!= nil {
@@ -245,7 +245,7 @@ func (s *BlackListRepo) MonitoringWeeklyReport(req *pb.Filter) (*pb.Reports, err
 		res.Reports = append(res.Reports, report)
 	}
 	
-	query = `SELECT COUNT(*) FROM black_list WHERE timestamp >= NOW() - INTERVAL '1 week'`
+	query = `SELECT COUNT(*) FROM black_list WHERE blacklisted_at >= NOW() - INTERVAL '1 week'`
 	var count int64
 	err = s.db.QueryRow(query).Scan(&count)
 	if err!= nil {
@@ -293,7 +293,7 @@ func (s *BlackListRepo) MonitoringMonthlyReport(req *pb.Filter) (*pb.Reports, er
 		res.Reports = append(res.Reports, report)
 	}
 	
-	query = `SELECT COUNT(*) FROM black_list WHERE timestamp >= NOW() - INTERVAL '1 month'`
+	query = `SELECT COUNT(*) FROM black_list WHERE blacklisted_at >= NOW() - INTERVAL '1 month'`
 	var count int64
 	err = s.db.QueryRow(query).Scan(&count)
 	if err!= nil {
