@@ -92,7 +92,14 @@ func (s *AdminRepo) ListHR(req *pb.Filter) (*pb.GetAllHRRes, error) {
 		res.Hr = append(res.Hr, &hr)
 	}
 
-	res.Count = int32(len(res.Hr))
+	query = `SELECT COUNT(*) FROM hr WHERE deleted_at=0`
+	var count int64
+	err = s.db.QueryRow(query).Scan(&count)
+	if err!= nil {
+        return nil, err
+    }
+
+	res.Count = int32(count)
 
 	return &res, nil
 }
@@ -197,7 +204,14 @@ func (s *AdminRepo) GetAllUsers(req *pb.ListUserReq) (*pb.ListUserRes, error) {
 		res.Users = append(res.Users, &user)
 	}
 
-	res.Count = int32(len(res.Users))
+	query = `SELECT COUNT(*) FROM users WHERE deleted_at=0`
+	var count int64
+	err = s.db.QueryRow(query).Scan(&count)
+	if err!= nil {
+        return nil, err
+    }
+
+	res.Count = int32(count)
 
 	return res, nil
 }

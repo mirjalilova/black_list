@@ -147,7 +147,14 @@ func (s *HRRepo) GetAll(req *pb.ListEmployeeReq) (*pb.ListEmployeeRes, error) {
 		res.Employees = append(res.Employees, &emp)
 	}
 
-	res.Count = int32(len(res.Employees))
+	query = `SELECT COUNT(*) FROM employee WHERE deleted_at=0`
+	var count int64
+	err = s.db.QueryRow(query).Scan(&count)
+	if err!= nil {
+        return nil, err
+    }
+
+	res.Count = int32(count)
 
 	return res, nil
 }
@@ -162,8 +169,8 @@ func (s *HRRepo) Update(req *pb.UpdateReq) (*pb.Void, error) {
 	var conditions []string
 
 	if req.Position != "" && req.Position != "string" {
-		arg = append(arg, "%" + req.Position + "%")
-		conditions = append(conditions, fmt.Sprintf(" position ILIKE $%d", len(arg)))
+		arg = append(arg, req.Position)
+		conditions = append(conditions, fmt.Sprintf(" position = $%d", len(arg)))
 	}
 
 	if req.HrId != "" && req.HrId != "string" {

@@ -102,7 +102,14 @@ func (s *BlackListRepo) GetAll(req *pb.Filter) (*pb.GetAllBlackListRes, error) {
 		res.BlackLists = append(res.BlackLists, bk)
 	}
 
-	res.Count = int32(len(res.BlackLists))
+	query = `SELECT COUNT(*) FROM black_list`
+	var count int64
+	err = s.db.QueryRow(query).Scan(&count)
+	if err!= nil {
+        return nil, err
+    }
+
+	res.Count = int32(count)
 
 	return res, nil
 }
