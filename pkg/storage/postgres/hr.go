@@ -149,7 +149,7 @@ func (s *HRRepo) GetAll(req *pb.ListEmployeeReq) (*pb.ListEmployeeRes, error) {
 		res.Employees = append(res.Employees, &emp)
 	}
 
-	query = `SELECT COUNT(*) FROM employee WHERE deleted_at=0`
+	query = `SELECT COUNT(*) FROM employees WHERE deleted_at=0`
 	var count int64
 	err = s.db.QueryRow(query).Scan(&count)
 	if err!= nil {
