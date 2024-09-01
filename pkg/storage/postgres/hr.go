@@ -237,7 +237,7 @@ func (s *HRRepo) Delete(req *pb.GetById) (*pb.Void, error) {
             WHERE 
                 id = $1 AND deleted_at = 0`
 
-    _, err = tr.Exec(query, req.Id)
+    _, err = tr.Exec(query, user_id)
     if err!= nil {
         return res, err
     }
