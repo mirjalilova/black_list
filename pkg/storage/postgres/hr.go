@@ -75,7 +75,7 @@ func (s *HRRepo) Get(req *pb.GetById) (*pb.Employee, error) {
 				u.email,
                 u.date_of_birth,
                 e.position,
-                e.hr_id
+                e.hr_id,
 				e.is_blocked
 			FROM
 				employees e
@@ -109,8 +109,8 @@ func (s *HRRepo) GetAll(req *pb.ListEmployeeReq) (*pb.ListEmployeeRes, error) {
 				u.email,
                 u.date_of_birth,
                 e.position,
-                e.hr_id
-				e.is_blocked,
+                e.hr_id,
+				e.is_blocked
 			FROM
 				employees e
 			JOIN 
