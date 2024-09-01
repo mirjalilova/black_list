@@ -57,6 +57,13 @@ func (s *BlackListRepo) Add(req *pb.BlackListCreate) (*pb.Void, error) {
 		return nil, err
 	}
 
+	query = `UPDATE employees SET is_blocked = true WHERE id = $1`
+	_, err = tr.Exec(query, req.EmployeeId)
+	if err!= nil {
+        tr.Rollback()
+        return nil, err
+    }
+
 	tr.Commit()
 
 	return res, nil
@@ -155,6 +162,13 @@ func (s *BlackListRepo) Remove(req *pb.RemoveReq) (*pb.Void, error) {
 		tr.Rollback()
 		return nil, err
 	}
+
+	query = `UPDATE employees SET is_blocked = false WHERE id = $1`
+	_, err = tr.Exec(query, req.EmployeeId)
+	if err!= nil {
+        tr.Rollback()
+        return nil, err
+    }
 
 	tr.Commit()
 

@@ -13,6 +13,7 @@ CREATE TABLE IF NOT EXISTS employees (
     user_id UUID NOT NULL REFERENCES users(id),
     position VARCHAR(50),
     hr_id UUID NOT NULL REFERENCES hr(id),
+    is_blocked BOOLEAN NOT NULL DEFAULT false,
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
     deleted_at BIGINT NOT NULL DEFAULT 0
