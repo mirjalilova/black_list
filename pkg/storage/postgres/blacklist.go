@@ -218,7 +218,9 @@ func (s *BlackListRepo) MonitoringDailyReport(req *pb.Filter) (*pb.Reports, erro
         return nil, err
     }
 
-	res.Count = int32(count)		
+	res.Count = int32(count)
+	
+	fmt.Println("ssssssss", res)
 
     return res, nil
 }
@@ -266,7 +268,9 @@ func (s *BlackListRepo) MonitoringWeeklyReport(req *pb.Filter) (*pb.Reports, err
         return nil, err
     }
 
-	res.Count = int32(count)		
+	res.Count = int32(count)	
+	
+	fmt.Println("ddddd", res)
 
     return res, nil
 }
@@ -316,5 +320,6 @@ func (s *BlackListRepo) MonitoringMonthlyReport(req *pb.Filter) (*pb.Reports, er
 
 	res.Count = int32(count)		
 
+	fmt.Println("ffffff", res)
     return res, nil
 }
