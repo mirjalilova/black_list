@@ -220,15 +220,13 @@ func (s *BlackListRepo) MonitoringDailyReport(req *pb.Filter) (*pb.Reports, erro
 
 	res.Count = int32(count)
 	
-	fmt.Println("ssssssss", res)
-
     return res, nil
 }
 
 func (s *BlackListRepo) MonitoringWeeklyReport(req *pb.Filter) (*pb.Reports, error) {
 	res := &pb.Reports{}
 
-    query := `SELECT 
+	query := `SELECT 
 				u.full_name,
 				b.timestamp
             FROM
@@ -238,41 +236,43 @@ func (s *BlackListRepo) MonitoringWeeklyReport(req *pb.Filter) (*pb.Reports, err
 			JOIN 
 				users u on u.id = e.user_id
 			WHERE 
-				b.action = 'added' AND b.timestamp >= NOW() - INTERVAL '1 week' LIMIT $1 OFFSET $2`
+				b.action = 'added' AND b.timestamp >= NOW() - INTERVAL '1 week'
+			LIMIT $1 OFFSET $2`
 
 	req.Offset = (req.Offset - 1) * req.Limit
 
 	rows, err := s.db.Query(query, req.Limit, req.Offset)
-	if err!= nil {
-        return nil, err
-    }
+	if err != nil {
+		return nil, err
+	}
 	defer rows.Close()
 
 	for rows.Next() {
 		report := &pb.Report{}
 		err = rows.Scan(
-            &report.FullName,
-            &report.BlacklistedAt,
-        )
-		if err!= nil {
-            return nil, err
-        }
+			&report.FullName,
+			&report.BlacklistedAt,
+		)
+		if err != nil {
+			return nil, err
+		}
 
 		res.Reports = append(res.Reports, report)
 	}
-	
-	query = `SELECT COUNT(*) FROM black_list WHERE blacklisted_at >= NOW() - INTERVAL '1 week'`
+
+	// Count query aligned with audit_logs table
+	countQuery := `SELECT COUNT(*) 
+		           FROM audit_logs b 
+		           WHERE b.action = 'added' AND b.timestamp >= NOW() - INTERVAL '1 week'`
 	var count int64
-	err = s.db.QueryRow(query).Scan(&count)
-	if err!= nil {
-        return nil, err
-    }
+	err = s.db.QueryRow(countQuery).Scan(&count)
+	if err != nil {
+		return nil, err
+	}
 
-	res.Count = int32(count)	
-	
-	fmt.Println("ddddd", res)
+	res.Count = int32(count)
 
-    return res, nil
+	return res, nil
 }
 
 func (s *BlackListRepo) MonitoringMonthlyReport(req *pb.Filter) (*pb.Reports, error) {
@@ -320,6 +320,5 @@ func (s *BlackListRepo) MonitoringMonthlyReport(req *pb.Filter) (*pb.Reports, er
 
 	res.Count = int32(count)		
 
-	fmt.Println("ffffff", res)
     return res, nil
 }
