@@ -41,6 +41,17 @@ func (s *AdminService) ListHR(c context.Context, filter *pb.Filter) (*pb.GetAllH
 	return res, nil
 }
 
+func (s *AdminService) GetHRById(c context.Context, req *pb.GetById) (*pb.Hr, error) {
+    res, err := s.storage.Admin().GetHRById(req)
+    if err!= nil {
+        slog.Error("Error getting HR by ID: ", err)
+        return nil, err
+    }
+
+    slog.Info("Got HR by ID")
+    return res, nil
+}
+
 func (s *AdminService) Delete(c context.Context, req *pb.GetById) (*pb.Void, error) {
     _, err := s.storage.Admin().Delete(req)
 	if err!= nil {
@@ -72,4 +83,15 @@ func (s *AdminService) ChangeRole(c context.Context, req *pb.ChangeRoleReq) (*pb
 
     slog.Info("Role changed")
     return &pb.Void{}, nil
+}
+
+func (s *AdminService) GetUserById(c context.Context, req *pb.GetById) (*pb.UserRes, error) {
+    res, err := s.storage.Admin().GetUserById(req)
+    if err!= nil {
+        slog.Error("Error getting user by ID: ", err)
+        return nil, err
+    }
+
+    slog.Info("Got user by ID")
+    return res, nil
 }

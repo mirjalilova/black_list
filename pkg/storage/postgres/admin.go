@@ -106,6 +106,36 @@ func (s *AdminRepo) ListHR(req *pb.Filter) (*pb.GetAllHRRes, error) {
 	return &res, nil
 }
 
+func (s *AdminRepo) GetHRById(req *pb.GetById) (*pb.Hr, error) {
+	res := &pb.Hr{}
+
+	query := `SELECT
+				h.id,
+				u.full_name,
+				u.email,
+				u.date_of_birth,
+				h.created_at
+			FROM
+				hr h 
+            JOIN 
+				users u ON h.user_id = u.id
+			WHERE
+				h.id = $1 AND h.deleted_at = 0`
+	
+	err := s.db.QueryRow(query, req.Id).Scan(
+		    &res.Id,
+            &res.FullName,
+            &res.Email,
+            &res.DateOfBirth,
+            &res.CreatedAt,
+        )
+    if err!= nil {
+		return nil, err
+	}
+
+	return res, nil
+}
+
 func (s *AdminRepo) Delete(req *pb.GetById) (*pb.Void, error) {
 	res := &pb.Void{}
 
@@ -250,6 +280,38 @@ func (s *AdminRepo) ChangeRole(req *pb.ChangeRoleReq) (*pb.Void, error) {
 	}
 
 	tr.Commit()
+
+	return res, nil
+}
+
+func (s *AdminRepo) GetUserById(req *pb.GetById) (*pb.UserRes, error) {
+	res := &pb.UserRes{}
+
+	query := `SELECT 
+                id, 
+                username, 
+                full_name,
+                email, 
+                date_of_birth,
+                role 
+            FROM 
+                users 
+            WHERE 
+                id = $1 AND deleted_at=0`
+
+	err := s.db.QueryRow(query, req.Id).Scan(
+		&res.Id,
+		&res.Username,
+		&res.FullName,
+		&res.Email,
+		&res.DateOfBirth,
+		&res.Role,
+	)
+	if err == sql.ErrNoRows {
+		return nil, fmt.Errorf("user not found")
+	} else if err != nil {
+		return nil, err
+	}
 
 	return res, nil
 }

@@ -13,9 +13,11 @@ type StorageI interface {
 type AdminI interface {
 	Approve(id *pb.CreateHR) (*pb.Void, error)
 	ListHR(filter *pb.Filter) (*pb.GetAllHRRes, error)
+	GetHRById(id *pb.GetById) (*pb.Hr, error)
 	Delete(id *pb.GetById) (*pb.Void, error)
 	GetAllUsers(req *pb.ListUserReq) (*pb.ListUserRes, error)
 	ChangeRole(req *pb.ChangeRoleReq) (*pb.Void, error)
+	GetUserById(id *pb.GetById) (*pb.UserRes, error)
 }
 
 type HRI interface {
