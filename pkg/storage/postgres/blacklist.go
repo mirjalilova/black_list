@@ -380,7 +380,7 @@ func (s *BlackListRepo) ViewLogs(req *pb.Filter) (*pb.Logs, error) {
 		return nil, err
 	}
 
-	countQuery := `SELECT COUNT(*) FROM audit_logs WHERE created_at >= NOW() - INTERVAL '1 day'`
+	countQuery := `SELECT COUNT(*) FROM audit_logs`
 	var count int
 	err = s.db.QueryRow(countQuery).Scan(&count)
 	if err != nil {
