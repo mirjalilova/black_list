@@ -204,7 +204,9 @@ func (s *BlackListRepo) MonitoringDailyReport(req *pb.Filter) (*pb.Reports, erro
 		report := &pb.Report{}
 		err = rows.Scan(
             &report.FullName,
-            &report.BlacklistedAt,
+			&report.Position,
+			&report.Reason,
+			&report.BlacklistedAt,
         )
 		if err!= nil {
             return nil, err
@@ -256,7 +258,9 @@ func (s *BlackListRepo) MonitoringWeeklyReport(req *pb.Filter) (*pb.Reports, err
 		report := &pb.Report{}
 		err = rows.Scan(
             &report.FullName,
-            &report.BlacklistedAt,
+			&report.Position,
+			&report.Reason,
+			&report.BlacklistedAt,
         )
 		if err!= nil {
             return nil, err
@@ -306,7 +310,9 @@ func (s *BlackListRepo) MonitoringMonthlyReport(req *pb.Filter) (*pb.Reports, er
 		report := &pb.Report{}
 		err = rows.Scan(
             &report.FullName,
-            &report.BlacklistedAt,
+			&report.Position,
+			&report.Reason,
+			&report.BlacklistedAt,
         )
 		if err!= nil {
             return nil, err
