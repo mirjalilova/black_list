@@ -37,7 +37,7 @@ func (s *HRService) Get(c context.Context, id *pb.GetById) (*pb.Employee, error)
         return nil, err
     }
 
-	slog.Info("Got Employee: %+v", res)
+	slog.Info("Got Employee")
 	return res, nil
 }
 
@@ -48,7 +48,7 @@ func (s *HRService) GetAll(c context.Context, req *pb.ListEmployeeReq) (*pb.List
         return nil, err
     }
 
-	slog.Info("Got Employee: %+v", res)
+	slog.Info("Got Employee")
 	return res, nil
 }
 

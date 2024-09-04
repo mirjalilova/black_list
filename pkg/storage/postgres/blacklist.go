@@ -178,6 +178,8 @@ func (s *BlackListRepo) Remove(req *pb.RemoveReq) (*pb.Void, error) {
 func (s *BlackListRepo) MonitoringDailyReport(req *pb.Filter) (*pb.Reports, error) {
 	res := &pb.Reports{}
 
+	fmt.Println(req.Limit, req.Offset, "aaaaaaaaaaaaaaaaaaaaa")
+
     query := `SELECT 
 				u.full_name,
 				b.timestamp
