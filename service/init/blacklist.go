@@ -84,3 +84,14 @@ func (s *BlackListService) MonitoringMonthlyReport(c context.Context, req *pb.Fi
     slog.Info("Got monthly report successfully")
     return res, nil
 }
+
+func (s *BlackListService) ViewLogs(c context.Context, req *pb.Filter) (*pb.Logs, error) {
+    res, err := s.storage.BlackList().ViewLogs(req)
+    if err!= nil {
+        slog.Error("Error getting logs: %v", err)
+        return nil, err
+    }
+
+    slog.Info("Got logs successfully")
+    return res, nil
+}

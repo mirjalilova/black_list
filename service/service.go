@@ -35,4 +35,5 @@ type BlackListI interface {
 	MonitoringDailyReport(ctx context.Context, request *pb.Void) (*pb.Reports, error)
 	MonitoringWeeklyReport(ctx context.Context, request *pb.Void) (*pb.Reports, error)
 	MonitoringMonthlyReport(ctx context.Context, request *pb.Void) (*pb.Reports, error)
+	ViewLogs(ctx context.Context, request *pb.Void) (*pb.Logs, error)
 }
