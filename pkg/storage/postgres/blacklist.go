@@ -226,6 +226,8 @@ func (s *BlackListRepo) MonitoringDailyReport(req *pb.Filter) (*pb.Reports, erro
 func (s *BlackListRepo) MonitoringWeeklyReport(req *pb.Filter) (*pb.Reports, error) {
 	res := &pb.Reports{}
 
+	fmt.Println(req.Limit, req.Offset, "aaaaaaaaaaaaaaaaaaaaa")
+
     query := `SELECT 
 				u.full_name,
 				b.timestamp
@@ -255,6 +257,8 @@ func (s *BlackListRepo) MonitoringWeeklyReport(req *pb.Filter) (*pb.Reports, err
 		if err!= nil {
             return nil, err
         }
+
+		fmt.Println(report, "sssssssssssssssssssss")
 
 		res.Reports = append(res.Reports, report)
 	}
