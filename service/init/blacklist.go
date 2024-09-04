@@ -30,7 +30,7 @@ func (s *BlackListService) Add(c context.Context, req *pb.BlackListCreate) (*pb.
 	return &pb.Void{}, nil
 }
 
-func (s *BlackListService) GetAll(c context.Context, req *pb.Filter) (*pb.GetAllBlackListRes, error) {
+func (s *BlackListService) GetAll(c context.Context, req *pb.Filter) (*pb.Reports, error) {
 	res, err := s.storage.BlackList().GetAll(req)
 	if err!= nil {
         slog.Error("Error getting black list: %v", err)

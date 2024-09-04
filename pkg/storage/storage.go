@@ -29,8 +29,9 @@ type HRI interface {
 type BlackListI interface {
 	Add(req *pb.BlackListCreate) (*pb.Void, error)
 	Remove(id *pb.RemoveReq) (*pb.Void, error)
-	GetAll(req *pb.Filter) (*pb.GetAllBlackListRes, error)
+	GetAll(req *pb.Filter) (*pb.Reports, error)
 	MonitoringDailyReport(req *pb.Filter) (*pb.Reports, error)
 	MonitoringWeeklyReport(req *pb.Filter) (*pb.Reports, error)
 	MonitoringMonthlyReport(req *pb.Filter) (*pb.Reports, error)
+	ViewLogs(req *pb.Filter) (*pb.Logs, error)
 }

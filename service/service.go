@@ -30,7 +30,7 @@ type HRI interface {
 
 type BlackListI interface {
 	Add(ctx context.Context, request *pb.BlackListCreate) (*pb.Void, error)
-	GetAll(ctx context.Context, request *pb.Filter) (*pb.Void, error)
+	GetAll(ctx context.Context, request *pb.Filter) (*pb.Reports, error)
 	Remove(ctx context.Context, request *pb.RemoveReq) (*pb.Void, error)
 	MonitoringDailyReport(ctx context.Context, request *pb.Void) (*pb.Reports, error)
 	MonitoringWeeklyReport(ctx context.Context, request *pb.Void) (*pb.Reports, error)

@@ -69,12 +69,11 @@ func (s *BlackListRepo) Add(req *pb.BlackListCreate) (*pb.Void, error) {
 	return res, nil
 }
 
-func (s *BlackListRepo) GetAll(req *pb.Filter) (*pb.GetAllBlackListRes, error) {
-	res := &pb.GetAllBlackListRes{}
+func (s *BlackListRepo) GetAll(req *pb.Filter) (*pb.Reports, error) {
+	res := &pb.Reports{}
 
 	query := `SELECT 
 				u.full_name,
-				u.date_of_birth,
 				e.position,
 				b.reason,
                 b.blacklisted_at
@@ -95,11 +94,10 @@ func (s *BlackListRepo) GetAll(req *pb.Filter) (*pb.GetAllBlackListRes, error) {
 	defer rows.Close()
 
 	for rows.Next() {
-		bk := &pb.BlackListRes{}
+		bk := &pb.Report{}
 
 		err = rows.Scan(
 			&bk.FullName,
-			&bk.DateOfBirth,
 			&bk.Position,
 			&bk.Reason,
 			&bk.BlacklistedAt,
@@ -108,7 +106,7 @@ func (s *BlackListRepo) GetAll(req *pb.Filter) (*pb.GetAllBlackListRes, error) {
 			return nil, err
 		}
 
-		res.BlackLists = append(res.BlackLists, bk)
+		res.Reports = append(res.Reports, bk)
 	}
 
 	query = `SELECT COUNT(*) FROM black_list`
@@ -178,19 +176,21 @@ func (s *BlackListRepo) Remove(req *pb.RemoveReq) (*pb.Void, error) {
 func (s *BlackListRepo) MonitoringDailyReport(req *pb.Filter) (*pb.Reports, error) {
 	res := &pb.Reports{}
 
-	fmt.Println(req.Limit, req.Offset, "aaaaaaaaaaaaaaaaaaaaa")
+	fmt.Println(req.Limit, req.Offset)
 
     query := `SELECT 
 				u.full_name,
-				b.timestamp
+				e.position,
+				b.reason,
+				b.blacklisted_at
             FROM
-                audit_logs b 
+                black_list b 
             JOIN
                 employees e on e.id = b.employee_id
 			JOIN 
 				users u on u.id = e.user_id
 			WHERE 
-				b.action = 'added' AND b.timestamp >= NOW() - INTERVAL '1 day' LIMIT $1 OFFSET $2`
+				b.blacklisted_at >= NOW() - INTERVAL '1 day' LIMIT $1 OFFSET $2`
 
 	req.Offset = (req.Offset - 1) * req.Limit
 
@@ -228,19 +228,21 @@ func (s *BlackListRepo) MonitoringDailyReport(req *pb.Filter) (*pb.Reports, erro
 func (s *BlackListRepo) MonitoringWeeklyReport(req *pb.Filter) (*pb.Reports, error) {
 	res := &pb.Reports{}
 
-	fmt.Println(req.Limit, req.Offset, "aaaaaaaaaaaaaaaaaaaaa")
+	fmt.Println(req.Limit, req.Offset)
 
     query := `SELECT 
 				u.full_name,
-				b.timestamp
+				e.position,
+				b.reason,
+				b.blacklisted_at
             FROM
-                audit_logs b 
+                black_list b 
             JOIN
                 employees e on e.id = b.employee_id
 			JOIN 
 				users u on u.id = e.user_id
 			WHERE 
-				b.action = 'added' AND b.timestamp >= NOW() - INTERVAL '1 week' LIMIT $1 OFFSET $2`
+				b.blacklisted_at >= NOW() - INTERVAL '1 week' LIMIT $1 OFFSET $2`
 
 	req.Offset = (req.Offset - 1) * req.Limit
 
@@ -259,8 +261,6 @@ func (s *BlackListRepo) MonitoringWeeklyReport(req *pb.Filter) (*pb.Reports, err
 		if err!= nil {
             return nil, err
         }
-
-		fmt.Println(report, "sssssssssssssssssssss")
 
 		res.Reports = append(res.Reports, report)
 	}
@@ -282,15 +282,17 @@ func (s *BlackListRepo) MonitoringMonthlyReport(req *pb.Filter) (*pb.Reports, er
 
     query := `SELECT 
 				u.full_name,
-				b.timestamp
+				e.position,
+				b.reason,
+				b.blacklisted_at
             FROM
-                audit_logs b 
+                black_list b 
             JOIN
                 employees e on e.id = b.employee_id
 			JOIN 
 				users u on u.id = e.user_id
 			WHERE 
-				b.action = 'added' AND b.timestamp >= NOW() - INTERVAL '1 month' LIMIT $1 OFFSET $2`
+				b.blacklisted_at >= NOW() - INTERVAL '1 month' LIMIT $1 OFFSET $2`
 
 	req.Offset = (req.Offset - 1) * req.Limit
 
@@ -323,4 +325,63 @@ func (s *BlackListRepo) MonitoringMonthlyReport(req *pb.Filter) (*pb.Reports, er
 	res.Count = int32(count)		
 
     return res, nil
+}
+
+func (s *BlackListRepo) ViewLogs(req *pb.Filter) (*pb.Logs, error) {
+	res := &pb.Logs{}
+
+	req.Offset = (req.Offset - 1) * req.Limit
+
+	query := `SELECT 
+				u.full_name,
+				us.full_name AS action_performed_by,
+				l.timestamp,
+				l.action
+			FROM
+				audit_logs l
+			JOIN 
+				employees e ON e.id = l.employee_id
+			JOIN 
+				users u ON u.id = e.user_id
+			JOIN 
+				hr h ON h.id = l.added_by
+			JOIN
+				users us ON us.id = h.user_id
+			LIMIT $1 OFFSET $2`
+
+	rows, err := s.db.Query(query, req.Limit, req.Offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		log := &pb.Log{}
+		err = rows.Scan(
+			&log.FullName,
+			&log.ActionPerformedBy,
+			&log.Timestamp,
+			&log.Action,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		res.Logs = append(res.Logs, log)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+
+	countQuery := `SELECT COUNT(*) FROM audit_logs WHERE created_at >= NOW() - INTERVAL '1 day'`
+	var count int
+	err = s.db.QueryRow(countQuery).Scan(&count)
+	if err != nil {
+		return nil, err
+	}
+
+	res.Count = int32(count)
+
+	return res, nil
 }
